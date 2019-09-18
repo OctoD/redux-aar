@@ -65,5 +65,8 @@
     "typedoc": "^0.15.0",
     "typedoc-plugin-markdown": "^2.2.4",
     "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "redux": "^4.0.4"
   }
 }
