@@ -1,35 +1,20 @@
-typescript library template
-===========================
+redux aar
+=========
 
-Your library description
+Actions creator and reducers utilities for redux
 
 # 🎉 Features
 
-Add your library features here.
-
-📦 This template already has (out of the box):
-
-* preconfigured jest (with ts-jest) for testing your library
-* preconfigured benchmarks with benchmark.js
-* azure dev-ops configuration
-* travis-ci configuration, just add your repo to travis and you have done
-* codecov setup
-* tsconfig.json configurated for node.js libraries
-* eslint/prettier you have eslint/prettier preconfigured, your code will be linted at commit time automatically
-* github issue templates, they are already there, just configure them
-* contributing guidelines and code of conduct are already setupped
-* size-limit script, for checking the weight of your library
-* automatic docs generation with [typedoc](https://github.com/TypeStrong/typedoc)
-* automatic changelog generation with standard-changelog
+This small library
 
 # ⚙ Install
 
 ```bash
 # npm
-npm i mylib
+npm i redux-aar
 
 # yarn
-yarn add mylib
+yarn add redux-aar
 ```
 
 # 📖 Docs
@@ -38,18 +23,72 @@ You can read docs [here](./docs/README.md), just remember to run your `npm run d
 
 # 🔍 Usage
 
-Put my library usage guide here
+A todo example
 
-Predefined scripts:
+```ts
+import * as aar from 'redux-aar';
 
-- benchmarks: runs all your benchmarks
-- changelog: creates a changelog (using standard-changelog)
-- docs: creates docs from your jsdocs
-- lint: lints your code
-- prepublishOnly: builds your sources for deployment (to npm)
-- size-limit: checks your bundle size limit
-- test: run tests 
-- upgrade-interactive: updgrades your dependencies interactively (like with yarn)
+interface ITask {
+  done?: boolean;
+  name: string;
+}
+
+interface IUpdateTask {
+  index: number;
+  task: ITask;
+}
+
+interface IState {
+  todos: ITask[];
+}
+
+const initialState = (): IState => ({ todos: [] });
+const createAction = aar.prefix('todos');
+const add = createAction<ITask>('add');
+const complete = createAction<number>('complete');
+const remove = createAction<number>('remove');
+const update = createAction<IUpdateTask>('update');
+
+const reducer = aar.createReducer(initialState());
+
+reducer
+  .on(add, (state, todo) => {
+    return { todos: state.todos.slice().concat(todo) };
+  })
+  .on(complete, (state, index) => {
+    const todos = state.todos.slice();
+    const todo = state.todos.slice()[index];
+
+    todo.done = true;
+
+    return { todos };
+  })
+  .on(remove, (state, index) => {
+    return { todos: state.todos.filter((_, i) => i !== index) }
+  })
+  .on(update, (state, todo) => {
+    const todos = state.todos.slice();
+
+    todos[todo.index] = todo.task;
+
+    return { todos };
+  })
+;
+
+const store = redux.createStore(redux.combineReducers({
+  todos: reducer.reduce(),
+}));
+
+store.dispatch(add({ name: 'foo' })); // todos length is 1
+store.dispatch(add({ name: 'bar' })); // todos length is 2
+store.dispatch(add({ name: 'baz' })); // todos length is 3
+
+store.dispatch(remove(1)); // removes task { name: 'bar' };
+
+store.dispatch(update({ index: 0, task: { name: 'helloworld' } }));  // task at index 0 is { name: 'helloworld' };
+
+store.dispatch(complete(0)); // task at index 0 is { name: 'helloworld', completed: true };
+```
 
 # ️❤️ Contributing
 

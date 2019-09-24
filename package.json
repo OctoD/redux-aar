@@ -1,18 +1,25 @@
 {
-  "name": "typescript-node-lib",
-  "version": "0.0.0",
+  "name": "redux-aar",
+  "version": "1.0.0",
   "licence": "MIT",
   "author": {
-    "name": "name",
-    "email": "email@domain.com"
+    "name": "Paolo Roth",
+    "email": "iamoctod@gmail.com"
   },
   "main": "dist/index.js",
-  "description": "your typescript library description",
+  "description": "Actions creator and reducers utilities for redux",
   "keywords": [
+    "action creator",
+    "action-creator",
+    "octod",
+    "react-redux",
+    "react",
+    "redux",
+    "state-manager",
+    "state",
     "typescript"
   ],
   "scripts": {
-    "benchmarks": "ts-node benchmarks",
     "changelog": "standard-changelog",
     "docs": "typedoc --options typedoc.markdown.json",
     "lint": "eslint -c ./.eslintrc.json src/**/*.ts --fix",
@@ -45,12 +52,10 @@
     }
   ],
   "devDependencies": {
-    "@types/benchmark": "^1.0.31",
     "@types/jest": "^24.0.18",
     "@types/node": "^12.7.5",
     "@typescript-eslint/eslint-plugin": "^2.3.0",
     "@typescript-eslint/parser": "^2.3.0",
-    "benchmark": "^2.1.4",
     "codecov": "^3.5.0",
     "eslint": "^6.4.0",
     "husky": "^3.0.5",

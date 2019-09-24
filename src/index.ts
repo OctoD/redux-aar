@@ -16,11 +16,71 @@ export type EmptyAction = ReduxAction<string>;
 export type ReducerMapperFn<S, P> = (state: S, payload: P) => S;
 
 export interface IReducerLike<InitialState> {
+  /**
+   * Binds a reducing function to an action. The function will be invoked only if the bound action is dispatched.
+   *
+   * ```ts
+   * import * as reduxaar from 'redux-aar';
+   *
+   * const update = reduxaar.createAction<number>('update');
+   * const update = reduxaar.createAction('reset');
+   * const initialState = () => ({ counter: 0 });
+   * const reducer = createReducer(initialState());
+   *
+   * reducer
+   *    .on(reset, initialState)
+   *    .on(update, (state, counter) => ({ counter }))
+   * ;
+   * ```
+   *
+   * @template T
+   * @param {ActionCreatorReturn<T>} action
+   * @param {ReducerMapperFn<InitialState, T>} mapper
+   * @returns {IReducerLike<T>}
+   * @memberof IReducerLike
+   */
   on<T>(
     action: ActionCreatorReturn<T>,
     mapper: ReducerMapperFn<InitialState, T>
-  ): IReducerLike<T>;
-  reduce(): Reducer;
+  ): IReducerLike<InitialState>;
+  /**
+   * Returns a valid `Reducer<InitialState>` for redux `combineReducers` function.
+   *
+   * ```ts
+   * // counter.ts
+   * import * as reduxaar from 'redux-aar';
+   *
+   * const decrease = reduxaar.createAction('decrease');
+   * const increase = reduxaar.createAction('increase');
+   * const initialState = () => ({ counter: 0 });
+   * const reducer = createReducer(initialState());
+   *
+   * reducer
+   *    .on(decrease, state => ({ counter: state.counter-- }))
+   *    .on(increase, state => ({ counter: state.counter++ }))
+   * ;
+   *
+   * export default reducer.reduce();
+   *
+   * // store.ts
+   * import * as redux from 'redux';
+   * import counter from './counter';
+   *
+   * const store = redux.createStore(
+   *    redux.combineReducers(
+   *      {
+   *        counter,
+   *      }
+   *    )
+   * );
+   *
+   * export default store;
+   * ```
+   *
+   * @returns {Reducer<InitialState>}
+   * @memberof IReducerLike
+   */
+  reduce(): Reducer<InitialState>;
 }
 
 class ReducerLike<InitialState> implements IReducerLike<InitialState> {
@@ -31,31 +91,16 @@ class ReducerLike<InitialState> implements IReducerLike<InitialState> {
 
   public constructor(protected readonly initialState: InitialState) {}
 
-  /**
-   *
-   *
-   * @template T
-   * @param {ActionCreatorReturn<T>} action
-   * @param {ReducerMapperFn<InitialState, T>} mapper
-   * @returns {this}
-   * @memberof ReducerLike
-   */
   public on<T>(
     action: ActionCreatorReturn<T>,
     mapper: ReducerMapperFn<InitialState, T>
-  ): IReducerLike<T> {
+  ): IReducerLike<InitialState> {
     this.subscribedMappers.set(action.type, mapper);
     return this as any;
   }
 
-  /**
-   *
-   *
-   * @returns {Reducer}
-   * @memberof ReducerLike
-   */
-  public reduce(): Reducer {
-    return (state: InitialState = this.initialState, action) => {
+  public reduce(): Reducer<InitialState> {
+    return (state: InitialState = this.initialState, action): InitialState => {
       if (this.subscribedMappers.has(action.type)) {
         return this.subscribedMappers.get(action.type)!(state, action.payload);
       }
@@ -97,6 +142,18 @@ export function createAction<T = undefined>(
 }
 
 /**
+ * Creates a reducer. A Reducer handles all mutations to a state when some actions are dispatched.
+ * It takes only one argument which is the initial state to mutate.
+ * To use a created reducer in redux, you have to use the method `reduce` with redux's `combineReducer` function.
+ *
+ * ```ts
+ * import { createReducer } from 'redux-aar';
+ *
+ * const initialState = () => ({ counter: 0 });
+ * const reducer = createReducer(initialState());
+ *
+ * export default reducer.reduce();
+ * ```
  *
  * @export
  * @template S
@@ -129,3 +186,9 @@ export function createReducer<S>(initialState: S): IReducerLike<S> {
 export function prefix(prefix: string): typeof createAction {
   return <T = undefined>(type: string) => createAction<T>(`${prefix}::${type}`);
 }
+
+export default {
+  createAction,
+  createReducer,
+  prefix
+};
