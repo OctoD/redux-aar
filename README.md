@@ -3,10 +3,6 @@ redux aar
 
 Actions creator and reducers utilities for redux
 
-# 🎉 Features
-
-This small library
-
 # ⚙ Install
 
 ```bash
