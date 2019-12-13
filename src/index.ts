@@ -4,6 +4,10 @@ export type Action<T = any> = ReduxAction<string> & { payload: T };
 
 export type ActionCreatorReturn<T> = (T extends undefined
   ? EmptyActionFn
+  : T extends boolean
+  ? T extends null
+    ? ActionFn<null>
+    : ActionFn<boolean>
   : ActionFn<T>) &
   ReduxAction<string>;
 
